@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$BRICK — Unbreakable Token & Nokia Pager Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,700;0,800;1,700&family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-color: #06080c;
+            --accent-green: #00ff66;
+            --accent-green-dim: rgba(0, 255, 102, 0.15);
+            --accent-orange: #ff5500;
+            --nokia-screen: #8b9d52;
+            --nokia-screen-dark: #7a8c43;
+            --nokia-pixel: #122107;
+            --card-bg: rgba(15, 20, 28, 0.88);
+            --border-color: #242e3d;
+            --border-highlight: #00ff66;
+            --text-main: #f0f6fc;
+            --text-dim: #8b949e;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Chakra Petch', sans-serif;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 50% 10%, rgba(0, 255, 102, 0.07) 0%, transparent 60%),
+                linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 32px 32px, 32px 32px;
+        }
+
+        .mono { font-family: 'Share Tech Mono', monospace; }
+        .pixel-font { font-family: 'Press Start 2P', monospace; }
+
+        /* Custom Scrollbar for Ledger */
+        .custom-scroll::-webkit-scrollbar { width: 8px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(10, 14, 20, 0.6); border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #2a3648; border-radius: 4px; border: 1px solid var(--border-color); }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent-green); }
+
+        /* Keypad Styles */
+        .key-btn {
+            background: linear-gradient(145deg, #232c3a, #161c26);
+            border: 1px solid #324054;
+            box-shadow: 0 4px 0 #0d121a, inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: all 0.08s ease;
+        }
+        .key-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #0d121a;
+            background: var(--accent-green);
+            color: #000;
+        }
+        .key-btn:active .key-sub { color: #000; }
+
+        /* Nokia Screen Overlay Glow */
+        .nokia-viewport {
+            background-color: var(--nokia-screen);
+            background-image: linear-gradient(rgba(18, 33, 7, 0.05) 50%, transparent 50%);
+            background-size: 100% 4px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
+            cursor: text;
+        }
+
+        /* Animations */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 102, 0.2); }
+            50% { box-shadow: 0 0 30px rgba(0, 255, 102, 0.5); }
+        }
+
+        .glow-box { animation: pulseGlow 3s infinite; }
+
+        @keyframes hammerDrop {
+            0% { transform: translateY(-160px) rotate(-15deg); opacity: 0; }
+            70% { transform: translateY(40px) rotate(0deg); opacity: 1; }
+            80% { transform: translateY(20px) rotate(5deg); }
+            100% { transform: translateY(35px) rotate(0deg); }
+        }
+
+        .strike-hammer { animation: hammerDrop 0.4s forwards ease-in; }
+
+        /* Modal Overlay */
+        .modal-bg {
+            background: rgba(4, 6, 10, 0.85);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="p-0 m-0 flex flex-col justify-between">
+
+    <header class="border-b border-[#242e3d] bg-[#090d14]/80 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-[#00ff66] to-[#009933] flex items-center justify-center text-black font-extrabold text-xl shadow-[0_0_15px_rgba(0,255,102,0.4)]">
+                    🧱
+                </div>
+                <div>
+                    <span class="text-2xl font-black tracking-wider text-white block leading-none">$BRICK</span>
+                    <span class="mono text-xs text-[#00ff66] tracking-widest">UNBREAKABLE LEDGER</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden sm:flex items-center gap-2 bg-[#121824] border border-[#242e3d] px-4 py-2 rounded-full">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#00ff66] animate-ping"></span>
+                    <span class="mono text-xs text-[#00ff66] font-bold">NETWORK: ONLINE</span>
+                </div>
+                <button onclick="scrollToSection('pager-section')" class="bg-[#00ff66] text-black font-extrabold px-5 py-2.5 rounded-xl hover:bg-[#33ff88] transition-all transform hover:-translate-y-0.5 shadow-[0_0_20px_rgba(0,255,102,0.3)] text-sm">
+                    OPEN PAGER
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
+        <section class="text-center max-w-4xl mx-auto mb-12">
+            <div class="inline-block bg-[#00ff66]/10 border border-[#00ff66]/30 text-[#00ff66] mono text-xs font-bold px-4 py-1.5 rounded-full mb-4 uppercase tracking-widest">
+                Proof of Durability • Permanent Messages
+            </div>
+            <h1 class="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white mb-4">
+                UNBREAKABLE <span class="text-[#00ff66] underline decoration-[#00ff66]/40 underline-offset-8">PAGER LEDGER</span>
+            </h1>
+            <p class="text-base sm:text-lg text-[#8b949e] leading-relaxed max-w-2xl mx-auto mb-8">
+                Broadcast permanent messages using the legendary Nokia 3310 keypad. Search, browse, inspect, or copy all historical entries stored on the $BRICK chain.
+            </p>
+
+            <!-- Step-by-Step Guide -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left max-w-3xl mx-auto">
+                <div class="bg-[#0f141c] border border-[#242e3d] p-4 rounded-xl flex items-start gap-3">
+                    <span class="w-7 h-7 rounded-lg bg-[#00ff66] text-black font-extrabold flex items-center justify-center shrink-0 text-sm">1</span>
+                    <div>
+                        <h4 class="font-bold text-white text-sm">Type Your Message</h4>
+                        <p class="text-xs text-[#8b949e] mt-1">Click the Nokia screen or use T9 keypad to type directly from your keyboard.</p>
+                    </div>
+                </div>
+
+                <div class="bg-[#0f141c] border border-[#242e3d] p-4 rounded-xl flex items-start gap-3">
+                    <span class="w-7 h-7 rounded-lg bg-[#00ff66] text-black font-extrabold flex items-center justify-center shrink-0 text-sm">2</span>
+                    <div>
+                        <h4 class="font-bold text-white text-sm">Post To Block</h4>
+                        <p class="text-xs text-[#8b949e] mt-1">Click "POST TO BLOCK" or press Enter to write your message into the ledger stream.</p>
+                    </div>
+                </div>
+
+                <div class="bg-[#0f141c] border border-[#242e3d] p-4 rounded-xl flex items-start gap-3">
+                    <span class="w-7 h-7 rounded-lg bg-[#00ff66] text-black font-extrabold flex items-center justify-center shrink-0 text-sm">3</span>
+                    <div>
+                        <h4 class="font-bold text-white text-sm">Explore History</h4>
+                        <p class="text-xs text-[#8b949e] mt-1">Scroll, filter, click to copy hash, or tweet any message from history.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pager-section" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-20">
+            
+            <!-- NOKIA 3310 PHONE CONTAINER -->
+            <div class="lg:col-span-5 flex justify-center">
+                <div class="w-full max-w-[360px] bg-gradient-to-b from-[#1c2533] via-[#121822] to-[#0a0e14] border-4 border-[#2d3b50] rounded-[40px] p-6 shadow-[0_25px_60px_rgba(0,0,0,0.9),0_0_30px_rgba(0,255,102,0.15)] glow-box relative">
+                    <!-- Brand Banner -->
+                    <div class="text-center mb-3">
+                        <span class="mono text-xs font-extrabold tracking-[0.3em] text-[#6b7c96] uppercase">NOKIA 3310 • $BRICK</span>
+                    </div>
+
+                    <!-- Phone Viewport Screen -->
+                    <div class="nokia-viewport border-4 border-[#122107] rounded-xl p-3 mb-5 text-[#122107] relative" onclick="focusNokiaInput()">
+                        <div class="flex justify-between items-center border-b-2 border-[#122107] pb-1 mb-2 pixel-font text-[9px] font-bold">
+                            <span>PAGER 3310</span>
+                            <span id="charCounter">0/60</span>
+                        </div>
+                        
+                        <!-- Visible text container wrapper -->
+                        <div class="relative min-h-[110px]">
+                            <div id="nokiaDisplay" class="pixel-font text-[11px] leading-relaxed break-words whitespace-pre-wrap">
+                                TYPE MESSAGE...
+                            </div>
+                            <!-- Real Hidden/Overlay Input to allow standard typing, cursor placement, and mobile keyboards -->
+                            <input type="text" id="nokiaRealInput" maxlength="60" oninput="syncRealInput(this)" onkeydown="handleRealKeydown(event)" class="absolute inset-0 opacity-0 w-full h-full cursor-text bg-transparent border-none outline-none">
+                        </div>
+
+                        <div class="flex justify-between items-center border-t border-[#122107]/40 pt-1 mt-2 text-[8px] mono font-bold">
+                            <span>STATUS: READY</span>
+                            <span id="keypadState">KEYBOARD READY</span>
+                        </div>
+                    </div>
+
+                    <!-- T9 Keypad -->
+                    <div class="grid grid-cols-3 gap-2.5 mb-4">
+                        <button onclick="pressT9('1', ['.', ',', '!', '1'])" class="key-btn p-3 rounded-xl text-center cursor-pointer">
+                            <span class="block font-black text-lg text-white leading-none">1</span>
+                            <span class="key-sub mono text-[10px] text-[#8b949e]">.,!</span>
+                        </button>
+                        <button onclick="pressT9('2', ['A', 'B', 'C', '2'])" class="key-btn p-3 rounded-xl text-center cursor-pointer">
+                            <span class="block font-black text-lg text-white leading-none">2</span>
+                            <span class="key-sub mono text-[10px] text-[#8b949e]">ABC</span>
+                        </button>
+                        <button onclick="pressT9('3', ['D', 'E', 'F', '3'])" class="key-btn p-3 rounded-xl text-center cursor-pointer">
+                            <span class="block font-black text-lg text-white leading-none">3</span>
+                            <span class="key-sub mono text-[10px] text-[#8b949e]">DEF</span>
+                        </button>
+                        <button onclick="pressT9('4', ['G', 'H', 'I', '4'])" class="key-btn p-3 rounded-xl text-center cursor-pointer">
+                            <span class="block font-black text-lg text-white leading-none">4</span>
+                            <span class="key-sub mono text-[10px] text-[#8b949e]">GHI</span>
+                        </button>
+                        <button onclick="pressT9('5', ['J', 'K', 'L', '5'])" class="key-btn p-3 rounded-xl text-center cursor-pointer">
+                            <span class="block font-black text-lg text-white leading-none">5</span>
+                            <span class="key-sub mono text-[10px] text-[#8b949e]">JKL</span>
+                        </button>
+                        <button onclick="pressT9('6', ['M', 'N', 'O', '6'])" class="key-btn p-3 rounded-xl text-center cursor-pointer">
+                            <span class="block font-black text-lg text-white leading-none">6</span>
+                            <span class="key-sub mono text-[10px] text-[#8b949e]">MNO</span>
+                        </button>
+                        <button onclick="pressT9('7', ['P', 'Q', 'R', 'S', '7'])" class="key-btn p-3 rounded-xl text-center cursor-pointer">
+                            <span class="block font-black text-lg text-white leading-none">7</span>
+                            <span class="key-sub mono text-[10px] text-[#8b949e]">PQRS</span>
+                        </button>
+                        <button onclick="pressT9('8', ['T', 'U', 'V', '8'])" class="key-btn p-3 rounded-xl text-center cursor-pointer">
+                            <span class="block font-black text-lg text-white leading-none">8</span>
+                            <span class="key-sub mono text-[10px] text-[#8b949e]">TUV</span>
+                        </button>
+                        <button onclick="pressT9('9', ['W', 'X', 'Y', 'Z', '9'])" class="key-btn p-3 rounded-xl text-center cursor-pointer">
+                            <span class="block font-black text-lg text-white leading-none">9</span>
+                            <span class="key-sub mono text-[10px] text-[#8b949e]">WXYZ</span>
+                        </button>
+                        <button onclick="addSpaceKey()" class="key-btn p-3 rounded-xl text-center cursor-pointer bg-[#1e2736]">
+                            <span class="block font-black text-lg text-[#00ff66] leading-none">␣</span>
+                            <span class="key-sub mono text-[10px] text-[#8b949e]">SPACE</span>
+                        </button>
+                        <button onclick="pressT9('0', [' ', '0'])" class="key-btn p-3 rounded-xl text-center cursor-pointer">
+                            <span class="block font-black text-lg text-white leading-none">0</span>
+                            <span class="key-sub mono text-[10px] text-[#8b949e]">+</span>
+                        </button>
+                        <button onclick="backspaceKey()" class="key-btn p-3 rounded-xl text-center cursor-pointer bg-[#1e2736]">
+                            <span class="block font-black text-lg text-red-400 leading-none">⌫</span>
+                            <span class="key-sub mono text-[10px] text-[#8b949e]">DEL</span>
+                        </button>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button onclick="submitMessage()" class="w-full bg-[#00ff66] hover:bg-[#33ff88] text-black font-extrabold py-3.5 rounded-xl shadow-[0_0_20px_rgba(0,255,102,0.4)] transition-all transform active:scale-95 text-base tracking-wide flex items-center justify-center gap-2">
+                        <span>POST TO BLOCK</span> 🧱
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7 bg-[#0f141c]/90 border border-[#242e3d] rounded-2xl p-6 backdrop-blur-md shadow-2xl flex flex-col h-[640px]">
+                
+                <!-- Ledger Header & Search Controls -->
+                <div class="border-b border-[#242e3d] pb-4 mb-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                        <div>
+                            <h2 class="text-xl font-extrabold text-white flex items-center gap-2">
+                                <span>🧱 UNBREAKABLE LEDGER STREAM</span>
+                            </h2>
+                            <p class="text-xs text-[#8b949e] mt-0.5">Fully unlocked public history. Click any message to view details or copy string.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="mono text-xs text-[#00ff66] bg-[#00ff66]/10 border border-[#00ff66]/30 px-3 py-1 rounded-full font-bold" id="totalMsgBadge">
+                                0 MESSAGES
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Search & Filter Controls -->
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <div class="relative flex-grow">
+                            <input type="text" id="searchInput" oninput="filterMessages()" placeholder="Search messages or block hashes..." class="w-full bg-[#090d14] border border-[#242e3d] focus:border-[#00ff66] rounded-xl px-4 py-2 text-sm text-white focus:outline-none mono placeholder-[#4b5563]">
+                            <span class="absolute right-3 top-2.5 text-[#4b5563] text-sm">🔍</span>
+                        </div>
+                        <select id="sortSelect" onchange="filterMessages()" class="bg-[#090d14] border border-[#242e3d] text-white text-sm rounded-xl px-3 py-2 focus:outline-none mono">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Unlocked Scrollable Message Feed -->
+                <div id="ledgerContainer" class="custom-scroll flex-grow overflow-y-auto space-y-3 pr-2">
+                    <!-- Messages populated dynamically -->
+                </div>
+
+                <!-- Footer Status Bar -->
+                <div class="border-t border-[#242e3d] pt-3 mt-3 flex justify-between items-center text-xs mono text-[#8b949e]">
+                    <span>STATUS: LIVE LEDGER</span>
+                    <span class="text-[#00ff66]">IMMUTABLE STORAGE</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="max-w-5xl mx-auto bg-[#0f141c]/90 border-2 border-[#242e3d] rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden mb-16">
+            <div class="text-center max-w-2xl mx-auto mb-8">
+                <span class="bg-[#ff5500]/10 border border-[#ff5500]/30 text-[#ff5500] mono text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest inline-block mb-3">
+                    SIMULATION ARENA
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-black uppercase text-white mb-2">💥 CRASHTEST CHART PREDICTOR</h2>
+                <p class="text-sm text-[#8b949e]">
+                    Drop a massive dump hammer onto $BRICK. Watch the red crash candle shatter against the unbreakable Nokia wall and rebound violently green to the moon!
+                </p>
+            </div>
+
+            <!-- Chart Arena Box -->
+            <div id="chartArena" class="w-full h-80 bg-[#080b10] border border-[#242e3d] rounded-2xl relative overflow-hidden flex items-end justify-center pb-8 mb-6">
+                <!-- Grid background -->
+                <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#242e3d_1px,transparent_1px)] [background-size:16px_16px]"></div>
+
+                <!-- Hammer Sprite -->
+                <div id="hammerSprite" class="absolute top-4 text-6xl z-20 opacity-0 transition-opacity">🔨</div>
+
+                <!-- Red Dump Candle -->
+                <div id="redCandle" class="absolute top-0 w-3 bg-gradient-to-b from-red-500 to-red-700 rounded-b-md transition-all duration-300 opacity-0 z-10" style="height: 0px;"></div>
+
+                <!-- Nokia $BRICK Wall -->
+                <div id="brickWall" class="z-20 w-32 h-28 bg-gradient-to-t from-[#16202c] to-[#253448] border-2 border-[#00ff66] rounded-xl flex flex-col items-center justify-center shadow-[0_0_25px_rgba(0,255,102,0.3)] transition-transform duration-100">
+                    <span class="text-3xl mb-1">📱</span>
+                    <span class="font-extrabold text-[#00ff66] text-sm tracking-wider">$BRICK</span>
+                    <span class="mono text-[9px] text-[#8b949e]">100% ARMOR</span>
+                </div>
+
+                <!-- Green Rebound Candle -->
+                <div id="greenCandle" class="absolute bottom-8 w-4 bg-gradient-to-t from-[#00ff66] to-[#66ffaa] rounded-t-md shadow-[0_0_15px_#00ff66] transition-all duration-500 opacity-0 z-10" style="height: 0px; right: 25%;"></div>
+            </div>
+
+            <!-- Controls & Live Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                <button onclick="triggerDumpAnimation()" id="dumpBtn" class="md:col-span-1 bg-gradient-to-r from-[#ff5500] to-[#cc2200] hover:from-[#ff6611] hover:to-[#dd3311] text-white font-extrabold py-4 px-6 rounded-xl shadow-[0_0_25px_rgba(255,85,0,0.4)] transition-all transform hover:scale-105 active:scale-95 text-center text-sm uppercase">
+                    TRIGGER DUMP 💥
+                </button>
+
+                <div class="md:col-span-3 grid grid-cols-3 gap-3">
+                    <div class="bg-[#090d14] border border-[#242e3d] p-3 rounded-xl text-center">
+                        <span class="mono text-[10px] text-[#8b949e] block uppercase">DURABILITY</span>
+                        <span class="text-xl font-extrabold text-[#00ff66]" id="durabilityStat">100%</span>
+                    </div>
+                    <div class="bg-[#090d14] border border-[#242e3d] p-3 rounded-xl text-center">
+                        <span class="mono text-[10px] text-[#8b949e] block uppercase">DUMPS ABSORBED</span>
+                        <span class="text-xl font-extrabold text-white" id="dumpsCount">0</span>
+                    </div>
+                    <div class="bg-[#090d14] border border-[#242e3d] p-3 rounded-xl text-center">
+                        <span class="mono text-[10px] text-[#8b949e] block uppercase">BOUNCE MULTI</span>
+                        <span class="text-xl font-extrabold text-[#00ff66]" id="bounceStat">1.0x</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status banner -->
+            <div id="crashOutcome" class="mt-4 text-center mono text-xs text-[#00ff66] bg-[#00ff66]/10 border border-[#00ff66]/20 py-2 rounded-xl">
+                Ready to test token durability. Click "TRIGGER DUMP".
+            </div>
+        </section>
+    </main>
+
+    <div id="msgModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-bg hidden">
+        <div class="bg-[#0f141c] border-2 border-[#00ff66] rounded-2xl max-w-lg w-full p-6 shadow-[0_0_50px_rgba(0,255,102,0.3)] relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-[#8b949e] hover:text-white text-xl font-bold">✕</button>
+            
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-2xl">🧱</span>
+                <h3 class="text-lg font-extrabold text-white">BLOCK DETAIL INSPECTOR</h3>
+            </div>
+
+            <div class="space-y-3 mono text-xs">
+                <div class="bg-[#080b10] p-3 rounded-lg border border-[#242e3d]">
+                    <span class="text-[#8b949e] block mb-1">BLOCK ID:</span>
+                    <span id="modalBlock" class="text-[#00ff66] font-bold text-sm">#1042</span>
+                </div>
+
+                <div class="bg-[#080b10] p-3 rounded-lg border border-[#242e3d]">
+                    <span class="text-[#8b949e] block mb-1">TIMESTAMP:</span>
+                    <span id="modalTime" class="text-white font-bold">2026-10-03 14:22:01</span>
+                </div>
+
+                <div class="bg-[#080b10] p-3 rounded-lg border border-[#242e3d]">
+                    <span class="text-[#8b949e] block mb-1">TRANSACTION HASH:</span>
+                    <div class="flex justify-between items-center">
+                        <span id="modalHash" class="text-gray-300 break-all text-[10px]">0x7f8a...3b21</span>
+                        <button onclick="copyText('modalHash')" class="bg-[#00ff66]/20 text-[#00ff66] hover:bg-[#00ff66] hover:text-black px-2 py-1 rounded text-[10px] font-bold transition-all ml-2 shrink-0">
+                            COPY
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-[#080b10] p-3 rounded-lg border border-[#242e3d]">
+                    <span class="text-[#8b949e] block mb-1">PAYLOAD MESSAGE:</span>
+                    <p id="modalMsg" class="text-white text-sm leading-relaxed font-sans font-bold break-words"></p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button onclick="copyText('modalMsg')" class="bg-[#242e3d] hover:bg-[#324054] text-white px-4 py-2 rounded-xl text-xs font-bold transition-all">
+                    COPY MESSAGE
+                </button>
+                <button onclick="closeModal()" class="bg-[#00ff66] text-black hover:bg-[#33ff88] px-5 py-2 rounded-xl text-xs font-extrabold transition-all">
+                    CLOSE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-[#00ff66] text-black font-extrabold px-5 py-3 rounded-xl shadow-2xl transition-all duration-300 transform translate-y-20 opacity-0 z-50 mono text-xs flex items-center gap-2">
+        <span>✅</span> <span id="toastMsg">Copied to clipboard!</span>
+    </div>
+
+    <footer class="border-t border-[#242e3d] bg-[#080b10] py-8 text-center text-xs text-[#8b949e]">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="mono">$BRICK MEME TOKEN • NOKIA 3310 DURABILITY PROTOCOL • ALL MESSAGES ARE PERMANENT</p>
+        </div>
+    </footer>
+
+    <script>
+        /* ================= STATE & DATA MANAGEMENT ================= */
+        let typedText = "";
+        let lastKey = null;
+        let keyIndex = 0;
+        let T9Timer = null;
+        let currentBlockNum = 1042;
+        let dumpCount = 0;
+        let currentMultiplier = 1.0;
+
+        // Default seed messages in history
+        const initialLedger = [
+            {
+                id: 'msg-1',
+                block: 1042,
+                time: '2026-10-03 14:15:22',
+                hash: '0x8f9b23e11a4c90d81f2123a4567890abcdef1234567890abcdef1234567890ab',
+                text: '$BRICK IS UNRUGABLE! STILL STANDING STRONG'
+            },
+            {
+                id: 'msg-2',
+                block: 1041,
+                time: '2026-10-03 13:50:08',
+                hash: '0x4c21df34891b0021c324567890abcdef1234567890abcdef1234567890abcd',
+                text: 'NOKIA 3310 ENERGY FOREVER 🧱 NO RUG CAN DENT THIS'
+            },
+            {
+                id: 'msg-3',
+                block: 1040,
+                time: '2026-10-03 12:30:45',
+                hash: '0x1a90ee4511ab22bc3424567890abcdef1234567890abcdef1234567890abce',
+                text: 'DROPPED IT FROM THE 10TH FLOOR - STILL MINING'
+            },
+            {
+                id: 'msg-4',
+                block: 1039,
+                time: '2026-10-03 11:05:12',
+                hash: '0x7e33aa1209cc5566dd24567890abcdef1234567890abcdef1234567890abcf',
+                text: 'BUY THE DIP, THE WALL NEVER CRUMBLES!'
+            }
+        ];
+
+        let ledgerData = [];
+
+        // Load messages from localStorage or initialize defaults
+        function initLedger() {
+            const stored = localStorage.getItem('brick_ledger_history');
+            if (stored) {
+                try {
+                    ledgerData = JSON.parse(stored);
+                } catch(e) {
+                    ledgerData = [...initialLedger];
+                }
+            } else {
+                ledgerData = [...initialLedger];
+                localStorage.setItem('brick_ledger_history', JSON.stringify(ledgerData));
+            }
+            renderLedger();
+        }
+
+        /* ================= NOKIA 3310 KEYPAD & INPUT LOGIC ================= */
+        function focusNokiaInput() {
+            const inputField = document.getElementById('nokiaRealInput');
+            inputField.focus();
+        }
+
+        function syncRealInput(element) {
+            typedText = element.value.toUpperCase();
+            updateNokiaDisplay();
+        }
+
+        function handleRealKeydown(e) {
+            if (e.key === "Enter") {
+                submitMessage();
+            }
+        }
+
+        function pressT9(key, chars) {
+            if (typedText.length >= 60) return;
+
+            if (lastKey === key) {
+                keyIndex = (keyIndex + 1) % chars.length;
+                typedText = typedText.slice(0, -1) + chars[keyIndex];
+            } else {
+                lastKey = key;
+                keyIndex = 0;
+                typedText += chars[0];
+            }
+
+            clearTimeout(T9Timer);
+            T9Timer = setTimeout(() => { lastKey = null; }, 1000);
+            updateNokiaDisplayFromCode();
+        }
+
+        function addSpaceKey() {
+            if (typedText.length < 60) {
+                typedText += " ";
+                lastKey = null;
+                updateNokiaDisplayFromCode();
+            }
+        }
+
+        function backspaceKey() {
+            typedText = typedText.slice(0, -1);
+            lastKey = null;
+            updateNokiaDisplayFromCode();
+        }
+
+        function updateNokiaDisplayFromCode() {
+            const inputField = document.getElementById('nokiaRealInput');
+            inputField.value = typedText;
+            updateNokiaDisplay();
+        }
+
+        function updateNokiaDisplay() {
+            const display = document.getElementById('nokiaDisplay');
+            const counter = document.getElementById('charCounter');
+            
+            if (typedText === "") {
+                display.innerText = "TYPE MESSAGE...";
+                display.style.opacity = "0.5";
+            } else {
+                display.innerText = typedText + "▋";
+                display.style.opacity = "1";
+            }
+            counter.innerText = `${typedText.length}/60`;
+        }
+
+        /* ================= LEDGER RENDERING & INTERACTIONS ================= */
+        function submitMessage() {
+            if (!typedText.trim()) {
+                showToast("Please type a message first!");
+                return;
+            }
+
+            currentBlockNum++;
+            const now = new Date();
+            const timeFormatted = now.toISOString().replace('T', ' ').substring(0, 19);
+            const randomHash = '0x' + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
+
+            const newEntry = {
+                id: 'msg-' + Date.now(),
+                block: currentBlockNum,
+                time: timeFormatted,
+                hash: randomHash,
+                text: typedText.trim()
+            };
+
+            ledgerData.unshift(newEntry);
+            localStorage.setItem('brick_ledger_history', JSON.stringify(ledgerData));
+
+            typedText = "";
+            lastKey = null;
+            updateNokiaDisplayFromCode();
+            renderLedger();
+
+            showToast("🧱 Message published to Block #" + currentBlockNum);
+        }
+
+        function renderLedger() {
+            filterMessages();
+        }
+
+        function filterMessages() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const sortOrder = document.getElementById('sortSelect').value;
+            const container = document.getElementById('ledgerContainer');
+
+            let filtered = ledgerData.filter(item => 
+                item.text.toLowerCase().includes(query) ||
+                item.block.toString().includes(query) ||
+                item.hash.toLowerCase().includes(query)
+            );
+
+            if (sortOrder === 'oldest') {
+                filtered.sort((a, b) => a.block - b.block);
+            } else {
+                filtered.sort((a, b) => b.block - a.block);
+            }
+
+            document.getElementById('totalMsgBadge').innerText = `${filtered.length} MESSAGES`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-[#8b949e] mono text-xs">
+                        NO MESSAGES FOUND MATCHING SEARCH QUERY.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <div class="bg-[#090d14] border border-[#242e3d] hover:border-[#00ff66] p-4 rounded-xl transition-all group">
+                    <div class="flex justify-between items-center mb-2 mono text-xs cursor-pointer" onclick="openModal('${item.id}')">
+                        <span class="text-[#00ff66] font-bold">BLOCK #${item.block}</span>
+                        <span class="text-[#8b949e] text-[10px]">${item.time}</span>
+                    </div>
+                    <p class="text-white text-sm font-bold font-sans break-words cursor-pointer hover:text-[#00ff66] transition-colors mb-3" onclick="openModal('${item.id}')">
+                        ${escapeHtml(item.text)}
+                    </p>
+                    <div class="flex justify-between items-center text-[10px] mono text-[#8b949e] border-t border-[#18202c] pt-2">
+                        <span class="truncate max-w-[180px] cursor-pointer" onclick="openModal('${item.id}')">HASH: ${item.hash.substring(0, 16)}...</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-[#00ff66] underline cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" onclick="openModal('${item.id}')">INSPECT ➔</span>
+                            <button onclick="tweetMessage(event, '${encodeURIComponent(item.text)}')" class="bg-[#1d9bf0]/20 hover:bg-[#1d9bf0] text-[#1d9bf0] hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shrink-0">
+                                <span>🐦</span> Твитнуть
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function tweetMessage(event, textEncoded) {
+            event.stopPropagation();
+            const officialChannelUrl = "https://x.com/Brick331O?s=20";
+            const text = decodeURIComponent(textEncoded) + " \n\nOfficial Channel: " + officialChannelUrl + " \n— Broadcasted via $BRICK Nokia 3310 Ledger 🧱";
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+            window.open(twitterUrl, '_blank');
+        }
+
+        /* ================= MODAL & UTILS ================= */
+        function openModal(msgId) {
+            const item = ledgerData.find(m => m.id === msgId);
+            if (!item) return;
+
+            document.getElementById('modalBlock').innerText = `#${item.block}`;
+            document.getElementById('modalTime').innerText = item.time;
+            document.getElementById('modalHash').innerText = item.hash;
+            document.getElementById('modalMsg').innerText = item.text;
+
+            document.getElementById('msgModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('msgModal').classList.add('hidden');
+        }
+
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            showToast("Copied to clipboard!");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        /* ================= CRASHTEST SIMULATION ARENA ================= */
+        function triggerDumpAnimation() {
+            const hammer = document.getElementById('hammerSprite');
+            const red = document.getElementById('redCandle');
+            const green = document.getElementById('greenCandle');
+            const wall = document.getElementById('brickWall');
+            const btn = document.getElementById('dumpBtn');
+            const outcome = document.getElementById('crashOutcome');
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+
+            hammer.classList.remove('strike-hammer');
+            hammer.style.opacity = '0';
+            red.style.height = '0px';
+            red.style.opacity = '0';
+            green.style.height = '0px';
+            green.style.opacity = '0';
+            outcome.innerText = "💥 Whale dump triggered! Impact imminent...";
+
+            setTimeout(() => {
+                hammer.style.opacity = '1';
+                hammer.classList.add('strike-hammer');
+                red.style.opacity = '1';
+                red.style.height = '140px';
+            }, 100);
+
+            setTimeout(() => {
+                wall.classList.add('scale-90', 'border-red-500');
+                setTimeout(() => wall.classList.remove('scale-90', 'border-red-500'), 150);
+                outcome.innerText = "🧱 IMPACT ABSORBED! ZERO DAMAGE TO $BRICK!";
+            }, 500);
+
+            setTimeout(() => {
+                green.style.opacity = '1';
+                green.style.height = '220px';
+                
+                dumpCount++;
+                currentMultiplier += 0.5;
+                document.getElementById('dumpsCount').innerText = dumpCount;
+                document.getElementById('bounceStat').innerText = currentMultiplier.toFixed(1) + 'x';
+                
+                outcome.innerText = "🚀 CHART BOUNCED TO THE MOON! MULTIPLIER: " + currentMultiplier.toFixed(1) + "x";
+
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
+            }, 900);
+        }
+
+        // Initialize App on Load
+        window.onload = () => {
+            initLedger();
+            updateNokiaDisplay();
+        };
+    </script>
+</body>
+</html>
